@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groupy | Connect with Developers</title>
+    <meta name="description" content="Discover new developer friends using our points-based recommendation system.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <canvas id="matrixBg" class="matrix-bg"></canvas>
+
+    <!-- Sign In Screen -->
+    <div id="loginOverlay" class="overlay">
+        <div class="modal login-modal neon-border">
+            <div class="logo-large neon-text">
+                <i class="fa-solid fa-code bounce-anim"></i>Grou<span class="highlight">py</span>
+            </div>
+            <h2>Welcome Back!</h2>
+            <p>Sign in to connect with other developers.</p>
+            <div class="login-form">
+                <input type="text" id="loginId" class="input-field code-font" placeholder="Your email address">
+                <input type="password" id="loginPass" class="input-field code-font" placeholder="Your password">
+                <div id="loginError" class="error-msg"></div>
+            </div>
+            <button id="loginBtn" class="btn btn-primary btn-large neon-btn">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign in & collect your points
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" style="display: none;" id="mainApp">
+        <nav class="sidebar neon-border-right">
+            <div class="logo neon-text">
+                <i class="fa-solid fa-code"></i>Grou<span class="highlight">py</span>
+            </div>
+
+            <ul class="nav-links">
+                <li class="active" data-tab="discover"><i class="fa-solid fa-compass"></i> Discover people</li>
+                <li data-tab="earn"><i class="fa-solid fa-bolt"></i> Earn points</li>
+                <li data-tab="spend"><i class="fa-solid fa-store"></i> Rewards shop</li>
+                <li data-tab="terminal"><i class="fa-solid fa-comments"></i> Messages</li>
+            </ul>
+
+            <div class="user-profile neon-border clickable-profile" id="userProfileCard">
+                <img src="https://ui-avatars.com/api/?name=Bipanshu+Kashyap&background=10b981&color=fff"
+                    alt="User Profile" class="avatar-small" id="sidebarAvatar">
+                <div class="user-info">
+                    <span class="user-name" id="sidebarUserName">Bipanshu Kashyap</span>
+                    <span class="user-status neon-sense-text" id="sidebarUserStatus">Online</span>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-header neon-border-bottom">
+                <div class="search-bar neon-border">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" class="code-font" placeholder="Search for people or skills...">
+                </div>
+
+                <div class="header-actions">
+                    <div class="token-balance-container neon-border">
+                        <div class="token-icon">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div class="token-details">
+                            <span class="token-label">Points</span>
+                            <span class="token-amount code-font" id="tokenBalance">0</span>
+                        </div>
+                    </div>
+                    <button class="notif-btn neon-border" style="position: relative;">
+                        <i class="fa-solid fa-bell"></i>
+                        <span id="notifBadge" class="notif-badge" style="display: none;"></span>
+                    </button>
+                </div>
+            </header>
+
+            <div id="toast" class="toast neon-border">
+                <div class="toast-icon"><i class="fa-solid fa-check-circle"></i></div>
+                <div class="toast-content" id="toastMessage">Done!</div>
+            </div>
+
+            <div class="content-scroll">
+
+                <!-- Discover Tab -->
+                <section id="discoverContent" class="tab-content active">
+                    <div class="section-header">
+                        <div>
+                            <h1>People you might like</h1>
+                            <p>Use points to see full profiles or send a connection request to someone with similar interests.</p>
+                        </div>
+                    </div>
+                    <div class="recommendations-grid" id="recommendationsGrid">
+                    </div>
+                </section>
+
+                <!-- Earn Points Tab -->
+                <section id="earnContent" class="tab-content">
+                    <div class="section-header">
+                        <div>
+                            <h1>Earn points</h1>
+                            <p>Complete simple daily tasks and achievements to earn more points.</p>
+                        </div>
+                    </div>
+                    <div class="tasks-grid" id="tasksGrid">
+                    </div>
+                </section>
+
+                <!-- Rewards Shop Tab -->
+                <section id="spendContent" class="tab-content">
+                    <div class="section-header">
+                        <div>
+                            <h1>Rewards shop</h1>
+                            <p>Use your points to unlock premium features and profile upgrades.</p>
+                        </div>
+                    </div>
+                    <div class="store-grid" id="storeGrid">
+                    </div>
+                </section>
+
+                <!-- Messages Tab -->
+                <section id="terminalContent" class="tab-content">
+                    <div class="section-header">
+                        <div>
+                            <h1>Messages</h1>
+                            <p>Chat privately with your connections.</p>
+                        </div>
+                    </div>
+                    <div class="chat-container neon-border" style="display: flex; height: 65vh; padding: 0; background: var(--bg-dark); border-radius: 12px; overflow: hidden; border: 1px solid #30363d;">
+                        <div class="chat-sidebar" style="width: 340px; overflow-y: auto; background: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
+                            <div style="padding: 1.5rem 1.2rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                                <h3 style="margin: 0; font-size: 1.25rem;">Messages</h3>
+                                <i class="fa-solid fa-pen-to-square" style="font-size: 1.2rem; cursor: pointer; color: var(--text-main);"></i>
+                            </div>
+                            <div id="chatFriendsList" style="flex: 1; overflow-y: auto; overflow-x: hidden;">
+                            </div>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); position: relative;">
+                            <div style="padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border-bottom: 1px solid var(--border-color); z-index: 10;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <img src="https://ui-avatars.com/api/?name=VIKAS&background=8b5cf6&color=fff" id="activeChatAvatar" style="width: 44px; height: 44px; border-radius: 50%;">
+                                    <h3 id="activeChatName" style="margin: 0; font-size: 1.1rem; color: #fff;">VIKAS</h3>
+                                </div>
+                                <div style="display: flex; gap: 1.2rem; font-size: 1.3rem; color: #fff;">
+                                    <i class="fa-solid fa-phone" style="cursor: pointer;"></i>
+                                    <i class="fa-solid fa-video" style="cursor: pointer;"></i>
+                                    <i class="fa-solid fa-circle-info" style="cursor: pointer;"></i>
+                                </div>
+                            </div>
+                            <div class="chat-messages" id="chatMessages" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                            </div>
+                            <div class="chat-input-area" style="padding: 1rem 1.5rem; background: var(--bg-dark);">
+                                <div class="chat-input-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: transparent; border: 1px solid #30363d; border-radius: 30px; padding: 0.4rem 1rem; width: 100%;">
+                                    <i class="fa-regular fa-face-smile" style="font-size: 1.4rem; color: #fff; cursor: pointer;"></i>
+                                    <input type="text" id="chatInput" placeholder="Write a message..." autocomplete="off" style="flex: 1; background: transparent; border: none; color: #fff; outline: none; padding: 0.5rem; font-size: 0.95rem; font-family: inherit;">
+                                    <button class="chat-send-btn" id="chatSendBtn" style="background: none; border: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff;">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- My Profile Modal -->
+    <div id="profileModal" class="overlay" style="display: none;">
+        <div class="modal profile-modal neon-border">
+            <h2 id="profileModalTitle">My profile</h2>
+
+            <div class="profile-avatar-edit">
+                <img src="https://ui-avatars.com/api/?name=Bipanshu+Kashyap&background=10b981&color=fff" alt="User Avatar" class="avatar-large" id="modalAvatarPreview">
+            </div>
+
+            <div class="edit-section">
+                <p>Your name</p>
+                <input type="text" id="profileNameInput" class="input-field code-font" value="Bipanshu Kashyap" style="width: 100%; margin-bottom: 1rem;">
+
+                <p>Short bio or title</p>
+                <input type="text" id="profileStatusInput" class="input-field code-font" value="Full Stack Developer" style="width: 100%;">
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-box neon-border">
+                    <div class="stat-value code-font" id="profileTokensStat">0</div>
+                    <div class="stat-label">Total points</div>
+                </div>
+                <div class="stat-box neon-border">
+                    <div class="stat-value code-font" id="profileConnectionsStat">0</div>
+                    <div class="stat-label">Connections</div>
+                </div>
+            </div>
+
+            <div class="edit-section">
+                <p>Your skills &amp; interests</p>
+                <div class="interests-container" id="userInterestsContainer">
+                </div>
+                <div class="add-interest-input">
+                    <input type="text" id="newInterestInput" class="input-field code-font" placeholder="e.g. React, Python">
+                    <button class="btn btn-primary neon-btn" id="addInterestBtn">Add</button>
+                </div>
+            </div>
+
+            <button class="btn btn-large btn-primary neon-btn mt-2" id="saveProfileBtn">Save changes</button>
+            <button class="close-modal" id="closeProfileIconBtn"><i class="fa-solid fa-times"></i></button>
+        </div>
+    </div>
+
+    <!-- Confirm Action Modal -->
+    <div id="actionModal" class="overlay" style="display: none;">
+        <div class="modal neon-border">
+            <h3 id="modalTitle">Are you sure?</h3>
+            <p id="modalDesc">Are you sure you want to do this?</p>
+            <div class="modal-cost neon-cost" id="modalCost">Cost: <span class="code-font">0</span> points</div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelActionBtn">Go back</button>
+                <button class="btn btn-primary neon-btn" id="confirmActionBtn">Yes, continue</button>
+            </div>
+            <button class="close-modal" id="closeModalBtn"><i class="fa-solid fa-times"></i></button>
+        </div>
+    </div>
+
+    <!-- Connection Requests Modal -->
+    <div id="requestsModal" class="overlay" style="display: none; opacity: 0; transition: opacity 0.3s;">
+        <div class="modal neon-border" style="max-height: 80vh; overflow-y: auto; transform: scale(0.95); transition: transform 0.3s;">
+            <h2 id="requestsModalTitle" style="margin-bottom: 0;">Connection requests</h2>
+            <div id="incomingRequestsList" style="margin-top: 1.5rem; text-align: left;">
+            </div>
+            <button class="btn btn-secondary mt-2" id="closeRequestsBtn" style="width: 100%;">Close</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
